@@ -2,36 +2,55 @@ import 'package:flutter/material.dart';
 
 void main() => runApp(const MainApp());
 
+/// MainApp 是應用的主入口，繼承自 StatelessWidget。
 class MainApp extends StatelessWidget {
+  /// 建構函式，初始化 MainApp。
   const MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      /// 應用的標題
+      title: '商店',
+      /// 是否顯示除錯標籤
       debugShowCheckedModeBanner: false,
+      /// 應用的主題
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      /// 應用的主頁面
+      home: const MyHomePage(title: '購物車'),
     );
   }
 }
 
+/// MyHomePage 是一個 StatefulWidget，表示應用的主頁面。
 class MyHomePage extends StatefulWidget {
+  /// 建構函式，初始化 MyHomePage 並設置頁面標題。
   const MyHomePage({super.key, required this.title});
+
+  /// 頁面標題
   final String title;
 
+  /// 創建 MyHomePage 的狀態
   @override
   MyHomePageState createState() => MyHomePageState();
 }
 
 typedef TEC = TextEditingController;
 
+/// 資料類別，用於存儲商品資訊
 class Data {
+  /// 商品名稱
   String item;
+
+  /// 商品價格
   double price;
+
+  /// 商品數量
   int number;
+
+  /// 建構函式，初始化商品名稱、價格和數量
   Data(this.item, this.price, this.number);
 }
 
@@ -41,7 +60,8 @@ class MyHomePageState extends State<MyHomePage> {
   final TEC _priceC = TEC();
   final TEC _numberC = TEC();
 
-void _allow() {
+  /// 顯示訂單明細的對話框
+  void _allow() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -75,6 +95,7 @@ void _allow() {
     );
   }
 
+  /// 添加訂單至購物車
   void _addOrder() {
     final String item = _itemC.text;
     final String priceText = _priceC.text;
@@ -97,12 +118,14 @@ void _allow() {
     });
   }
 
+  /// 移除指定的 ListTile
   void _remove(int index) {
     setState(() {
       col.removeAt(index);
     });
   }
 
+  /// 顯示錯誤訊息
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
@@ -158,16 +181,15 @@ void _allow() {
                   itemBuilder: (context, index) {
                     final cur = col[index];
                     return ListTile(
-                      title: Text(cur.item,style: TextStyle(color: Colors.deepPurpleAccent),),
+                      title: Text(cur.item, style: TextStyle(color: Colors.deepPurpleAccent)),
                       subtitle: Text('\$${cur.price} x ${cur.number}'),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text('總共: ${cur.price * cur.number}'),
-                          IconButton(
+                          IconButton( 
                             onPressed: () => _remove(index),
-                            icon: const Icon(Icons.remove),
-                          ),
+                            icon: const Icon(Icons.remove), ),
                         ],
                       ),
                     );
