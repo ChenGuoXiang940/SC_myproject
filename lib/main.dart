@@ -64,7 +64,7 @@ class MyHomePageState extends State<MyHomePage> {
   final TEC _numberC = TEC();
   String? _username;
 
-  /// 顯示訂單明細的對話框
+  /// 送出訂單的對話框
   void _allow() {
     showDialog(
       context: context,
@@ -75,7 +75,7 @@ class MyHomePageState extends State<MyHomePage> {
           total += cur.price * cur.number;
         }
         return AlertDialog(
-          title: const Text('訂單明細'),
+          title: const Text('送出訂單'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: userOrders.map((x) {
@@ -88,6 +88,15 @@ class MyHomePageState extends State<MyHomePage> {
           ),
           actions: [
             Text('總共: \$${total.toStringAsFixed(2)}'),
+            TextButton(
+              onPressed: () {
+                for(var data in userOrders){
+                  _remove(data);
+                }
+                Navigator.of(context).pop();
+              },
+              child: const Text('結帳'),
+            ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
@@ -244,25 +253,63 @@ class SecondPage extends StatefulWidget {
   final String title;
 
   @override
-  _SecondPageState createState() => _SecondPageState();
+  SecondPageState createState() => SecondPageState();
 }
-
-class _SecondPageState extends State<SecondPage> {
+class ACCOUNT{
+  String name;
+  String password;
+  ACCOUNT(this.name,this.password);
+}
+List<ACCOUNT>accounts=[];
+class SecondPageState extends State<SecondPage> {
   final TEC _name = TEC();
   final TEC _password = TEC();
   String? _msg = "";
-
   void _logout() {
-    String? name_text = _name.text;
+    String? nameText = _name.text;
     String? password = _password.text;
-
-    if (name_text.isEmpty || password.isEmpty) {
+    if (nameText.isEmpty || password.isEmpty) {
       setState(() {
         _msg = "登入失敗,請重試輸入";
       });
       return;
     }
-    Navigator.pop(context, _name.text);
+    for(var it in accounts){
+      if(it.name==nameText&&it.password==password){
+          setState(() {
+            _msg = "";
+          });
+          Navigator.pop(context, _name.text);
+          break;
+      }
+    }
+    setState(() {
+      _msg = "帳號不存在或密碼錯誤";
+    });
+  }
+  void _enroll(){
+    String? nameText = _name.text;
+    String? password = _password.text;
+    if (nameText.isEmpty || password.isEmpty) {
+      setState(() {
+        _msg = "註冊失敗,請重試輸入";
+      });
+      return;
+    }
+    for(var it in accounts){
+      if(it.name==nameText){
+        setState(() {
+          _msg="帳號已存在,請重新輸入";
+        });
+        return;
+      }
+    }
+    accounts.add(ACCOUNT(nameText, password));
+    setState(() {
+      _msg = "註冊成功,請重試輸入";
+      _name.clear();
+      _password.clear();
+    });
   }
 
   @override
@@ -273,7 +320,7 @@ class _SecondPageState extends State<SecondPage> {
         backgroundColor: Colors.deepPurpleAccent,
         foregroundColor: Colors.white,
       ),
-      backgroundColor: Colors.white, // Set the background color to white
+      backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
@@ -313,7 +360,17 @@ class _SecondPageState extends State<SecondPage> {
                 ),
                 child: const Text('登入'),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
+              TextButton(
+                onPressed: _enroll,
+                style: ElevatedButton.styleFrom(
+                  iconColor: Colors.deepPurpleAccent,
+                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                  textStyle: const TextStyle(fontSize: 15),
+                ),
+                child: const Text('註冊新帳號'),
+              ),
+              const SizedBox(height: 10),
               if (_msg != null)
                 Text(
                   '$_msg',
