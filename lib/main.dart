@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'dart:async';
 import 'home_page.dart';
 import 'shopping_cart_page.dart';
 import 'account_page.dart';
 import 'about_page.dart';
+import 'user_provider.dart';
 
-void main() => runApp(const MainApp());
+void main() => runApp(
+  MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (context) => UserProvider()),
+    ],
+    child: const MainApp(),
+  ),
+);
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});

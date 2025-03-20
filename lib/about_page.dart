@@ -57,7 +57,7 @@ class AboutPage extends StatelessWidget {
                   decoration: TextDecoration.underline,
                 ),
               ),
-            ),
+          )
         ],
       ),
     );

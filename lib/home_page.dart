@@ -1,147 +1,75 @@
 import 'package:flutter/material.dart';
-import 'main.dart'; 
+import 'package:provider/provider.dart';
+import 'user_provider.dart';
+import 'main.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
   @override
   HomePageState createState() => HomePageState();
 }
-class HomePageState extends State<HomePage>{
+
+class HomePageState extends State<HomePage> {
   final TextEditingController _itemC = TextEditingController();
   final TextEditingController _priceC = TextEditingController();
   final TextEditingController _numberC = TextEditingController();
-  String? _username;
 
   @override
   Widget build(BuildContext context) {
+    final username = Provider.of<UserProvider>(context).username;
+
     return Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Column(
-            children: <Widget>[
-              if (_username != null)
-                Text('歡迎登入, $_username',
-                    style: TextStyle(fontSize: 20, color: Colors.green)),
-              TextField(
-                controller: _itemC,
-                decoration: const InputDecoration(labelText: "商品"),
-              ),
-              TextField(
-                controller: _priceC,
-                decoration: const InputDecoration(labelText: "價格"),
-              ),
-              TextField(
-                controller: _numberC,
-                decoration: const InputDecoration(labelText: "數量"),
-              ),
-              const SizedBox(height: 20),
+      padding: const EdgeInsets.all(16.0),
+      child: Center(
+        child: Column(
+          children: <Widget>[
+            if (username.isNotEmpty)
+              Text('歡迎登入, $username',
+                  style: TextStyle(fontSize: 20, color: Colors.green)),
+            TextField(
+              controller: _itemC,
+              decoration: const InputDecoration(labelText: "商品"),
+            ),
+            TextField(
+              controller: _priceC,
+              decoration: const InputDecoration(labelText: "價格"),
+            ),
+            TextField(
+              controller: _numberC,
+              decoration: const InputDecoration(labelText: "數量"),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _addOrder,
+              child: const Text('加入購物車'),
+            ),
+            const SizedBox(height: 20),
+            if(username.isEmpty)
               ElevatedButton(
-                onPressed: _addOrder,
-                child: const Text('加入購物車'),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _allow,
-                child: const Text('送出訂單'),
-              ),
-              const SizedBox(height: 20,),
-              ElevatedButton(
-                onPressed: () async {
-                  debugPrint('Navigating to SecondPage');
-                  // 導航到第二頁並等待結果
-                  final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SecondPage(),
-                    ),
-                  );
-                  debugPrint('Returned from SecondPage with result: $result');
-                  if (result != null) {
-                    setState(() {
-                      _username = result;
-                    });
-                  }
-                },
-                child: const Text('前往登入'),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: col.where((data) => data.name == _username).length,
-                  itemBuilder: (context, index) {
-                    final cur = col
-                        .where((data) => data.name == _username)
-                        .toList()[index];
-                    return ListTile(
-                      title: Text(cur.item,
-                          style: TextStyle(color: Colors.deepPurpleAccent)),
-                      subtitle: Text('\$${cur.price} x ${cur.number}'),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text('總共: ${cur.price * cur.number}'),
-                          IconButton(
-                            onPressed: () => _remove(cur),
-                            icon: const Icon(Icons.remove),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              )
-            ],
-          ),
-        ),
-      );
-  }
-    void _allow() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        double total = 0;
-        final userOrders = col.where((data) => data.name == _username).toList();
-        for (var cur in userOrders) {
-          total += cur.price * cur.number;
-        }
-        return AlertDialog(
-          title: const Text('送出訂單'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: userOrders.map((x) {
-              return ListTile(
-                title: Text(x.item),
-                subtitle: Text('\$${x.price} x ${x.number}'),
-                trailing: Text('花費: \$${x.price * x.number}'),
-              );
-            }).toList(),
-          ),
-          actions: [
-            Text('總共: \$${total.toStringAsFixed(2)}'),
-            Row(
-              children: [
-                TextButton(
-                onPressed: () {
-                  for (var data in userOrders) {
-                    _remove(data);
-                  }
-                  Navigator.of(context).pop();
-                },
-                child: const Text('結帳'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('關閉'),
-                ),
-              ],
-            )
+              onPressed: () async {
+                final userProvider = context.read<UserProvider>();
+                debugPrint('Navigating to SecondPage');
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SecondPage(),
+                  ),
+                );
+                debugPrint('Returned from SecondPage with result: $result');
+                if (result != null) {
+                  userProvider.setUsername(result);
+                }
+              },
+              child: const Text('前往登入'),
+            ),
           ],
-        );
-      },
+        ),
+      ),
     );
   }
 
   void _addOrder() {
+    final username = Provider.of<UserProvider>(context, listen: false).username;
     final String item = _itemC.text;
     final String priceText = _priceC.text;
     final String numberText = _numberC.text;
@@ -155,22 +83,52 @@ class HomePageState extends State<HomePage>{
       _showErrorDialog("輸入格式錯誤");
       return;
     }
-    if (_username == null) {
+    if (username.isEmpty) {
       _showErrorDialog("請先登入");
       return;
     }
-    setState(() {
-      col.add(Data(item, price, number, _username));
-      _itemC.clear();
-      _priceC.clear();
-      _numberC.clear();
-    });
-  }
-
-  void _remove(Data data) {
-    setState(() {
-      col.remove(data);
-    });
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('加入購物車'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                item,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Text('\$$priceText x $number')
+            ],
+          ),
+          actions: [
+            Row(
+              children: [
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      col.add(Data(item, price, number, username));
+                      _itemC.clear();
+                      _priceC.clear();
+                      _numberC.clear();
+                    });
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('確認'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('關閉'),
+                ),
+              ],
+            )
+          ],
+        );
+      },
+    );
   }
 
   void _showErrorDialog(String message) {
