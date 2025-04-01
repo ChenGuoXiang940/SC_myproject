@@ -26,21 +26,30 @@ class AccountPage extends StatelessWidget {
                     builder: (context) => const LoginPage(),
                   ),
                 );
-                if (result != null) {
+                if (result != null && result is String && context.mounted) {
                   userProvider.setUsername(result);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('登入成功')),
+                  );
                 }
               },
               child: Text('切換帳戶'),
             ),
             SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
+            if(username.isNotEmpty)
+              ElevatedButton(
+              onPressed: () async{
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => SecondPage(username),
-                  )
+                  ),
                 );
+                if (result != null && result is String && context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('密碼更改成功')),
+                  );
+                }
               },
               child: Text('更改密碼'),
             ),
@@ -231,7 +240,7 @@ class SecondPageState extends State<SecondPage>{
           _showErrorDialog("請使用新密碼");
           return;
         }
-        debugPrint("$widget.name $phone Org: ${accounts[i].password} New: $password");
+        debugPrint("${widget.username} $phone Org: ${accounts[i].password} New: $password");
         accounts[i]=ACCOUNT(widget.username,password);
         Navigator.pop(context, widget.username);
         return;
@@ -240,22 +249,10 @@ class SecondPageState extends State<SecondPage>{
     _showErrorDialog("找不到用戶名");
   }
   void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('錯誤'),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('關閉'),
-            ),
-          ],
-        );
-      },
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
     );
   }
   @override
@@ -284,11 +281,10 @@ class SecondPageState extends State<SecondPage>{
               decoration:InputDecoration(labelText:"新密碼")
             ),
             SizedBox(height:10),
-            if(widget.username.isNotEmpty)
-              ElevatedButton(
-              onPressed:()=>_change(),
-              child:const Text("確認")
-              )
+            ElevatedButton(
+            onPressed:()=>_change(),
+            child:const Text("確認")
+            )
           ]
         )
       )
