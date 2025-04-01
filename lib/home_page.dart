@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'user_provider.dart';
 import 'main.dart';
+import 'account_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -28,15 +29,15 @@ class HomePageState extends State<HomePage> {
                   style: TextStyle(fontSize: 20, color: Colors.green)),
             TextField(
               controller: _itemC,
-              decoration: const InputDecoration(labelText: "商品"),
+              decoration: const InputDecoration(labelText: "商品",hintText:"商品名稱"),
             ),
             TextField(
               controller: _priceC,
-              decoration: const InputDecoration(labelText: "價格"),
+              decoration: const InputDecoration(labelText: "價格",hintText:"價格數字"),
             ),
             TextField(
               controller: _numberC,
-              decoration: const InputDecoration(labelText: "數量"),
+              decoration: const InputDecoration(labelText: "數量",hintText:"數量數字"),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -48,14 +49,12 @@ class HomePageState extends State<HomePage> {
               ElevatedButton(
               onPressed: () async {
                 final userProvider = context.read<UserProvider>();
-                debugPrint('Navigating to SecondPage');
                 final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const SecondPage(),
+                    builder: (context) => const LoginPage(),
                   ),
                 );
-                debugPrint('Returned from SecondPage with result: $result');
                 if (result != null) {
                   userProvider.setUsername(result);
                 }

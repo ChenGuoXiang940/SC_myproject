@@ -20,12 +20,12 @@ class AboutPage extends StatelessWidget {
           Center(child: Image.asset('assets/images/flutter_logo.png')),
           const SizedBox(height: 20),
           Text(
-            '版本資訊: 1.0.0',
+            '資工購物平台',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
           const SizedBox(height: 20),
           Text(
-            '作者: ChenGuoXiang',
+            '版本資訊: 1.0.0',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 20),

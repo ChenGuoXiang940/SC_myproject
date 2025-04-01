@@ -4,7 +4,6 @@ import 'main.dart';
 import 'user_provider.dart';
 class ShoppingCartPage extends StatefulWidget {
   const ShoppingCartPage({super.key});
-
   @override
   ShoppingCartPageState createState() => ShoppingCartPageState();
 }
@@ -71,7 +70,9 @@ class ShoppingCartPageState extends State<ShoppingCartPage> {
     return Center(
       child: Column(
         children: [
-          Text('購物車內容'),
+          Text(
+            '購物車內容',
+            style:TextStyle(fontWeight:FontWeight.bold)),
           Expanded(
             child: ListView.builder(
               itemCount: col.where((data) => data.name == username).length,
@@ -101,6 +102,7 @@ class ShoppingCartPageState extends State<ShoppingCartPage> {
             onPressed: _pushOrder,
             child: const Text('送出訂單'),
           ),
+          SizedBox(height:20)
         ],
       ),
     );
