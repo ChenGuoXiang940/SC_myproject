@@ -28,7 +28,7 @@ Widget build(BuildContext context) {
           if (username.isNotEmpty)
             Text(
               '歡迎登入, $username',
-              style: const TextStyle(fontSize: 20, color: Colors.green),
+              style: const TextStyle(fontSize: 20, color: Colors.deepPurpleAccent),
             ),
           Form(
             key: _formKey,
@@ -69,7 +69,7 @@ Widget build(BuildContext context) {
               onPressed: () async {
                 final result = await Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                  MaterialPageRoute(builder: (context) => LoginPage(username)),
                 );
                 if (result != null) {
                   userProvider.setUsername(result);

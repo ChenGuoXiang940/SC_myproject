@@ -31,8 +31,12 @@ class MyHomePage extends StatefulWidget {
 }
 class ACCOUNT {
   String name;
+  String? phone;
   String password;
   ACCOUNT(this.name, this.password);
+  void addPhone(String phone){
+    this.phone=phone;
+  }
 }
 List<ACCOUNT> accounts = [];
 class Data {
