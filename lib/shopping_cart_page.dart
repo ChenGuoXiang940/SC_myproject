@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'main.dart';
+import 'package:intl/intl.dart';
 import 'user_provider.dart';
+import 'models.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 class ShoppingCartPage extends StatefulWidget {
   const ShoppingCartPage({super.key});
   @override
@@ -9,15 +12,18 @@ class ShoppingCartPage extends StatefulWidget {
 }
 
 class ShoppingCartPageState extends State<ShoppingCartPage> {
-  String _total="";
+  String _total = "";
+
   double _calculateTotal(List<Data> items) {
     return items.fold(0, (sum, item) => sum + item.price * item.number);
   }
+
   @override
   void initState() {
     super.initState();
     _updateTotal();
   }
+
   void _updateTotal() {
     final username = Provider.of<UserProvider>(context, listen: false).username;
     final userCartItems = col.where((data) => data.name == username).toList();
@@ -25,15 +31,16 @@ class ShoppingCartPageState extends State<ShoppingCartPage> {
       _total = _calculateTotal(userCartItems).toStringAsFixed(2);
     });
   }
+
   void _remove(Data data) {
     setState(() {
       col.remove(data);
     });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${data.item} 已從購物車刪除'),
+        content: Text(AppLocalizations.of(context)!.removeMessage(data.item)),
         action: SnackBarAction(
-          label: '撤銷',
+          label: AppLocalizations.of(context)!.undo,
           onPressed: () {
             setState(() {
               col.add(data);
@@ -43,15 +50,19 @@ class ShoppingCartPageState extends State<ShoppingCartPage> {
       ),
     );
   }
+
   List<Widget> _buildOrderList(List<Data> userOrders) {
-  return userOrders.map((x) {
-    return ListTile(
-      title: Text(x.item),
-      subtitle: Text('\$${x.price} x ${x.number}'),
-      trailing: Text('花費: \$${x.price * x.number}'),
-    );
-  }).toList();
-}
+    return userOrders.map((x) {
+      return ListTile(
+        title: Text(x.item),
+        subtitle: Text('\$${x.price} x ${x.number}'),
+        trailing: Text(
+          '${Intl.message('花費: \$', name: 'totalCost')}${x.price * x.number}',
+        ),
+      );
+    }).toList();
+  }
+
   void _pushOrder() {
     final username = Provider.of<UserProvider>(context, listen: false).username;
     final userOrders = col.where((data) => data.name == username).toList();
@@ -59,32 +70,31 @@ class ShoppingCartPageState extends State<ShoppingCartPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('送出訂單'),
+          title: Text(AppLocalizations.of(context)!.submitOrder),
           content: SingleChildScrollView(
-            child: ListBody(children:_buildOrderList(userOrders)
-            ),
+            child: ListBody(children: _buildOrderList(userOrders)),
           ),
           actions: [
-            Text('總共: \$$_total'),
+            Text('${Intl.message('總共: \$', name: 'totalCost')}$_total'),
             Row(
               children: [
                 TextButton(
                   onPressed: () {
                     for (var data in userOrders) {
                       setState(() {
-                          col.remove(data);
+                        col.remove(data);
                       });
                     }
                     debugPrint("name:$username total:$_total");
                     Navigator.of(context).pop();
                   },
-                  child: const Text('結帳'),
+                  child: Text(AppLocalizations.of(context)!.checkout),
                 ),
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: const Text('關閉'),
+                  child: Text(AppLocalizations.of(context)!.close),
                 ),
               ],
             )
@@ -93,9 +103,11 @@ class ShoppingCartPageState extends State<ShoppingCartPage> {
       },
     );
   }
+
   Widget _buildDivider(int index) {
     return Divider(color: index % 2 == 0 ? Colors.blue : Colors.green);
   }
+
   @override
   Widget build(BuildContext context) {
     final username = Provider.of<UserProvider>(context, listen: false).username;
@@ -104,24 +116,31 @@ class ShoppingCartPageState extends State<ShoppingCartPage> {
       child: Column(
         children: [
           Text(
-            '購物車內容',
-            style:TextStyle(fontWeight:FontWeight.bold)),
-          if(userCartItems.isEmpty)
-            Text('你的車是空的，請到首頁購物吧',
-                  style:TextStyle(fontSize:18,color:Colors.blue)),
+            AppLocalizations.of(context)!.cartTitle,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          if (userCartItems.isEmpty)
+            Text(
+              AppLocalizations.of(context)!.emptyCartMessage,
+              style: const TextStyle(fontSize: 18, color: Colors.blue),
+            ),
           Expanded(
             child: ListView.separated(
               itemCount: userCartItems.length,
               itemBuilder: (context, index) {
                 final cur = userCartItems[index];
                 return ListTile(
-                  title: Text(cur.item,
-                      style: TextStyle(color: Colors.deepPurpleAccent)),
+                  title: Text(
+                    cur.item,
+                    style: const TextStyle(color: Colors.deepPurpleAccent),
+                  ),
                   subtitle: Text('\$${cur.price} x ${cur.number}'),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('總共: ${cur.price * cur.number}'),
+                      Text(
+                        '${AppLocalizations.of(context)!.totalCost}${cur.price * cur.number}',
+                      ),
                       IconButton(
                         onPressed: () => _remove(cur),
                         icon: const Icon(Icons.remove),
@@ -136,10 +155,10 @@ class ShoppingCartPageState extends State<ShoppingCartPage> {
             ),
           ),
           ElevatedButton(
-            onPressed: userCartItems.isEmpty?null:_pushOrder,
-            child: const Text('送出訂單'),
+            onPressed: userCartItems.isEmpty ? null : _pushOrder,
+            child: Text(AppLocalizations.of(context)!.submitOrder),
           ),
-          SizedBox(height:50)
+          const SizedBox(height: 50),
         ],
       ),
     );
