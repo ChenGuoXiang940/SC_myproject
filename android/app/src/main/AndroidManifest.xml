@@ -1,4 +1,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 添加網路權限 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- 配置處理 HTTP 和 HTTPS 的 intent -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="http" />
+            <data android:scheme="https" />
+        </intent>
+    </queries>
     <application
         android:label="flutter_application_1"
         android:name="${applicationName}"

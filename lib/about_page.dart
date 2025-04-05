@@ -35,16 +35,15 @@ class AboutPage extends StatelessWidget {
           const SizedBox(height: 30),
           InkWell(
             onTap: () async {
-              const url = 'https://github.com/ChenGuoXiang940/MyApp';
+              const url = 'https://github.com/ChenGuoXiang940/SC_myproject';
               final Uri uri = Uri.parse(url);
               if (await canLaunchUrl(uri)&&context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('開啟網址 https://github.com/ChenGuoXiang940/MyApp')),
-                );
+                debugPrint('URL can be launched');
                 await launchUrl(uri, mode: LaunchMode.externalApplication);
               } else {
+                debugPrint('Cannot launch URL');
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('無法開啟網址 https://github.com/ChenGuoXiang940/MyApp')),
+                  const SnackBar(content: Text('無法開啟網址 https://github.com/ChenGuoXiang940/SC_myproject')),
                 );
               }
             },
