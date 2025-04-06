@@ -23,8 +23,9 @@ class MainApp extends StatefulWidget {
 class MainAppState extends State<MainApp>{
   Locale _locale = const Locale('zh', 'CN'); // 默認語言（中文）
   ThemeMode _themeMode = ThemeMode.dark; // 默認主題（黑色）
-  void toggleLanguage() {
+  void _toggleLanguage() {
     setState(() {
+      // 切換語言：中文 <-> 英文
       _locale = _locale.languageCode == 'zh'
           ? const Locale('en', 'US')
           : const Locale('zh', 'CN'); 
@@ -32,6 +33,7 @@ class MainAppState extends State<MainApp>{
   }
   void _toggleTheme() {
     setState(() {
+      // 切換主題：亮色模式 <-> 暗色模式
       _themeMode = _themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
     });
   }
@@ -45,7 +47,7 @@ class MainAppState extends State<MainApp>{
       theme: ThemeData.light(), // Light Mode 主題
       darkTheme: ThemeData.dark(), // Dark Mode 主題
       themeMode: _themeMode,
-      home: MyHomePage(toggleLanguage: toggleLanguage,toggleTheme: _toggleTheme),
+      home: MyHomePage(toggleLanguage: _toggleLanguage,toggleTheme: _toggleTheme),
     );
   }
 }
@@ -58,7 +60,7 @@ class MyHomePage extends StatefulWidget {
 }
 class MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
-  static const List<Widget> _pages = <Widget>[
+  final List<Widget> _pages = <Widget>[
     HomePage(),
     ShoppingCartPage(),
     AccountPage(),
@@ -71,9 +73,10 @@ class MyHomePageState extends State<MyHomePage> {
   }
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-      title: const Text("購物平台", style: TextStyle(color: Colors.white)),
+      title: Text(localizations.appTitle, style: const TextStyle(color: Colors.white)),
       backgroundColor: Colors.deepPurpleAccent,
       actions: [
         IconButton(
@@ -91,24 +94,24 @@ class MyHomePageState extends State<MyHomePage> {
       items: <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: const Icon(Icons.home),
-          label: AppLocalizations.of(context)!.home,
+          label: localizations.home,
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.shopping_cart),
-          label: AppLocalizations.of(context)!.cart,
+          label: localizations.cart,
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.account_circle),
-          label: AppLocalizations.of(context)!.account,
+          label: localizations.account,
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.info),
-          label: AppLocalizations.of(context)!.about,
+          label: localizations.about,
         ),
       ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.deepPurpleAccent,
-        unselectedItemColor: Colors.deepPurpleAccent,
+        unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
       ),
     );

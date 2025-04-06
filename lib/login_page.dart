@@ -1,24 +1,36 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'models.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 class LoginPage extends StatefulWidget {
   final String username;
-  const LoginPage(this.username,{super.key});
+  const LoginPage(this.username, {super.key});
   @override
   LoginPageState createState() => LoginPageState();
 }
+
 class LoginPageState extends State<LoginPage> {
   final TextEditingController _name = TextEditingController();
   final TextEditingController _password = TextEditingController();
   Timer? _timer;
-  bool _isLocked=false;
+  bool _isLocked = false;
   String? _msg;
   int errorCount = 0;
+
+  late AppLocalizations localizations;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    localizations = AppLocalizations.of(context)!;
+  }
+
   void displayError(String msg) {
     setState(() {
       if (++errorCount == 4) {
-        _isLocked=true;
-        _msg = '$msg,等待重試';
+        _isLocked = true;
+        _msg = '$msg, ${localizations.waitRetry}';
         _timer = Timer(const Duration(seconds: 5), () {
           setState(() {
             _isLocked = false;
@@ -27,10 +39,11 @@ class LoginPageState extends State<LoginPage> {
           });
         });
       } else {
-          _msg = '$msg, 還有 ${4 - errorCount} 次機會';
+        _msg = '$msg, ${localizations.remainingAttempts(4 - errorCount)}';
       }
     });
   }
+
   @override
   void dispose() {
     _timer?.cancel();
@@ -38,11 +51,12 @@ class LoginPageState extends State<LoginPage> {
     _password.dispose();
     super.dispose();
   }
+
   void _logout() {
-    String? nameText = _name.text;
-    String? password = _password.text;
+    String nameText = _name.text.trim();
+    String password = _password.text.trim();
     if (nameText.isEmpty || password.isEmpty) {
-      displayError("登入失敗");
+      displayError(localizations.loginFailed);
       return;
     }
     try {
@@ -54,27 +68,27 @@ class LoginPageState extends State<LoginPage> {
       });
       Navigator.pop(context, nameText);
     } catch (e) {
-      displayError("帳號不存在或密碼錯誤");
+      displayError(localizations.accountNotFound);
     }
   }
 
   void _enroll() {
-    String? nameText = _name.text;
-    String? password = _password.text;
+    String nameText = _name.text.trim();
+    String password = _password.text.trim();
     if (nameText.isEmpty || password.isEmpty) {
-      displayError("註冊失敗");
+      displayError(localizations.registerFailed);
       return;
     }
     for (var it in accounts) {
       if (it.name == nameText) {
-        displayError("帳號已存在");
+        displayError(localizations.accountExists);
         return;
       }
     }
     accounts.add(ACCOUNT(nameText, password));
     debugPrint("name:$nameText password:$password");
     setState(() {
-      _msg = "註冊成功,請再次登入";
+      _msg = localizations.registerSuccess;
       _name.clear();
       _password.clear();
     });
@@ -84,7 +98,7 @@ class LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("登入", style: TextStyle(color: Colors.white)),
+        title: Text(localizations.loginTitle, style: const TextStyle(color: Colors.white)),
         backgroundColor: Colors.deepPurpleAccent,
       ),
       body: Padding(
@@ -93,9 +107,9 @@ class LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                "資工購物平台",
-                style: TextStyle(
+              Text(
+                localizations.appTitle,
+                style: const TextStyle(
                     color: Colors.deepPurpleAccent,
                     fontSize: 30,
                     fontWeight: FontWeight.bold),
@@ -103,19 +117,19 @@ class LoginPageState extends State<LoginPage> {
               const SizedBox(height: 20),
               TextField(
                 controller: _name,
-                decoration: const InputDecoration(
-                  labelText: "用戶名",
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.person),
+                decoration: InputDecoration(
+                  labelText: localizations.usernameLabel,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.person),
                 ),
               ),
               const SizedBox(height: 20),
               TextField(
                 controller: _password,
-                decoration: const InputDecoration(
-                  labelText: "密碼",
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.lock),
+                decoration: InputDecoration(
+                  labelText: localizations.passwordLabel,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.lock),
                 ),
                 obscureText: true,
               ),
@@ -129,7 +143,7 @@ class LoginPageState extends State<LoginPage> {
                         horizontal: 50, vertical: 15),
                     textStyle: const TextStyle(fontSize: 18),
                   ),
-                  child: const Text('登入'),
+                  child: Text(localizations.loginButton),
                 ),
               const SizedBox(height: 10),
               if (!_isLocked)
@@ -141,17 +155,18 @@ class LoginPageState extends State<LoginPage> {
                         horizontal: 50, vertical: 15),
                     textStyle: const TextStyle(fontSize: 15),
                   ),
-                  child: const Text('註冊新帳號'),
+                  child: Text(localizations.registerButton),
                 ),
               const SizedBox(height: 10),
-              if(_msg!=null)
+              if (_msg != null)
                 Text(
-                    _msg!,
-                    style: TextStyle(
+                  _msg!,
+                  style: const TextStyle(
                     color: Colors.deepPurpleAccent,
                     fontSize: 15,
-                    fontWeight: FontWeight.bold),
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
             ],
           ),
         ),
